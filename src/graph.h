@@ -3,6 +3,8 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <set>
+#include <functional>
 using namespace std;
 
 
@@ -32,3 +34,41 @@ public:
     return ret.str();
   }
 };
+
+void graph_deep_first_search_iter(graph& g, size_t cur, function<void(size_t)> fbeg, function<void(size_t)> fend,
+				  vector<bool>& node_marked, set<size_t>& unmarked_node){
+  fbeg(cur);
+  node_marked[cur]= true;
+  unmarked_node.erase(cur);
+  
+  for(auto i : g.adj(cur)){
+    if(!node_marked[i]){
+      graph_deep_first_search_iter(g,i,fbeg,fend,node_marked,unmarked_node);
+    }
+  }
+  fend(cur);
+}
+void graph_deep_first_search(graph& g, function<void(size_t)> fbeg,
+			     function<void(size_t)> fend, function<void(size_t)> fnextgroup){
+  vector<bool> node_marked(g.sum_v(),false);
+  set<size_t> unmarked_node;
+  for(size_t i=0; i<g.sum_v(); i++){
+    unmarked_node.insert(i);
+  }
+  
+  while(!unmarked_node.empty()){
+    size_t cur= *unmarked_node.rbegin(); //back()
+    graph_deep_first_search_iter(g,cur,fbeg,fend,node_marked,unmarked_node);
+    fnextgroup(cur);
+  }
+}
+void graph_deep_first_search(graph& g){
+  graph_deep_first_search(g,[](size_t){},[](size_t){},[](size_t){});
+}
+
+vector<size_t> connect_components(graph& g){
+  vector<size_t> ret(g.sum_v());
+  size_t group_index=0;
+  graph_deep_first_search(g,[&](size_t cur){ret[cur]=group_index;},[](size_t){},[&](size_t){group_index++;});
+  return ret;
+}
