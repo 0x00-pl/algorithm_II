@@ -29,9 +29,6 @@ int main(int argc, char **argv) {
   
   
   digraph dg(10);
-  /*dg.add_edge(5,2);
-  dg.add_edge(3,2);
-  dg.add_edge(4,2);*/
   dg.add_edge(2,1);
   dg.add_edge(9,8);
   dg.add_edge(8,7);
