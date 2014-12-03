@@ -102,3 +102,42 @@ weight_edge_graph prim_minimum_spanning_tree(weight_edge_graph& src, weight_edge
   }
   return _out;
 }
+
+
+void prim_minimum_spanning_tree2_mark(weight_edge_graph& src, size_t v, vector<bool>& mark_v, fib_heap& edge_edges){
+  mark_v[v]=true;
+  auto adjs= src.adj(v);
+  for(auto i : adjs){
+    if(mark_v[ src.pool_of_edge[i].other(v) ] == false)
+      edge_edges.insert(i);
+  }
+}
+
+weight_edge_graph prim_minimum_spanning_tree2(weight_edge_graph& src, weight_edge_graph& _out){
+  vector<bool> mark_v(src.sum_v(),false);
+  fib_heap edge_edges(
+    [&](size_t e1,size_t e2)->bool{
+      return src.pool_of_edge[e1].lees(src.pool_of_edge[e2]);
+    });
+  prim_minimum_spanning_tree2_mark(src,0, mark_v, edge_edges);
+  while(_out.sum_e() < src.sum_v()-1){
+    if(edge_edges.size()==0){
+      cout<<"error, graph not connected.";
+    }
+    
+    size_t cur_edge_index= edge_edges.min();
+    edge_edges.pop();
+    weight_edge& cur_edge= src.pool_of_edge[cur_edge_index];
+    
+    if(mark_v[cur_edge.v1] && mark_v[cur_edge.v2])
+      continue;//ignore looped edge
+    
+    size_t next_v;
+    if( mark_v[cur_edge.v1] ) next_v= cur_edge.v2;
+    else next_v= cur_edge.v1;
+  
+    prim_minimum_spanning_tree2_mark(src, next_v, mark_v, edge_edges);
+    _out.add_edge(cur_edge.v1, cur_edge.v2, cur_edge.weight);
+  }
+  return _out;
+}

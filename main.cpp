@@ -1,5 +1,7 @@
 #include <iostream>
 #include "src/graph.h"
+#include "src/heaps.h"
+#include "src/minimum_spanning_tree.h"
 
 using namespace std;
 
@@ -47,6 +49,67 @@ int main(int argc, char **argv) {
     cout<<i<<" ->group"<<stcp[i]<<endl;
   }
   cout<<endl;
+  
+  cout<<"binheap"<<endl;
+  binheap bh([](size_t l, size_t r){return l<r;});
+  bh.insert(2);
+  bh.insert(3);
+  bh.insert(1);
+  bh.insert(4);
+  bh.insert(5);
+  while(bh.size()>0){
+    cout<<bh.min()<<" ";
+    bh.pop();
+  }
+  cout<<endl;
+  
+  cout<<"fibheap"<<endl;
+  fib_heap fh([](size_t l, size_t r){return l<r;});
+  fh.insert(2);
+  fh.insert(3);
+  fh.insert(1);
+  fh.insert(4);
+  fh.insert(5);
+  while(fh.size()>0){
+    cout<<fh.min()<<" ";
+    fh.pop();
+  }
+  cout<<endl;
+  
+  weight_edge_graph weg(8);
+  weg.add_edge(0, 7, 0.16);
+  weg.add_edge(2, 3, 0.17);
+  weg.add_edge(1, 7, 0.19);
+  weg.add_edge(0, 2, 0.26);
+  weg.add_edge(5, 7, 0.28);
+  weg.add_edge(1, 3, 0.29);
+  weg.add_edge(1, 5, 0.32);
+  weg.add_edge(2, 7, 0.34);
+  weg.add_edge(4, 5, 0.35);
+  weg.add_edge(1, 2, 0.36);
+  weg.add_edge(4, 7, 0.37);
+  weg.add_edge(0, 4, 0.38);
+  weg.add_edge(6, 2, 0.40);
+  weg.add_edge(3, 6, 0.52);
+  weg.add_edge(6, 0, 0.58);
+  weg.add_edge(6, 4, 0.93);
+  cout<<"kruskal_minimum_spanning_tree()"<<endl;
+  weight_edge_graph kru_mst(weg.sum_v());
+  kruskal_minimum_spanning_tree(weg, kru_mst);
+  cout<<kru_mst.expr();
+  cout<<endl;
+  
+  cout<<"prim_minimum_spanning_tree()"<<endl;
+  weight_edge_graph prim_mst(weg.sum_v());
+  prim_minimum_spanning_tree(weg, prim_mst);
+  cout<<prim_mst.expr();
+  cout<<endl;
+  cout<<"prim_minimum_spanning_tree2()"<<endl;
+  weight_edge_graph prim_mst2(weg.sum_v());
+  prim_minimum_spanning_tree(weg, prim_mst2);
+  cout<<prim_mst2.expr();
+  cout<<endl;
+  
   
   return 0;
 }
