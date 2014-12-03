@@ -136,7 +136,7 @@ public:
     Tnode* p= new Tnode(v);
     if(min_node==nullptr){
       min_node= p;
-      return;
+      return p;
     }
     min_node->merge(p);
     if(funcl(p->val,min_node->val))
