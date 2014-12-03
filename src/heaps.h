@@ -51,16 +51,21 @@ private:
   void fix_root(){
     size_t p=0;
     while(p<data.size()){
-      if(funcl(data[p],data[ldown(p)]) && funcl(data[p],data[rdown(p)])){
-	break;
-      }
       if(ldown(p)>=data.size()){break;}
-      else if(rdown(p)>=data.size() || funcl(data[ldown(p)],data[rdown(p)])){
+      else if(rdown(p)>=data.size()){
+	//l-child only, swap l
 	swap_value(p,ldown(p));
 	p= ldown(p);
       }else{
-	swap_value(p,rdown(p));
-	p= rdown(p);
+	if(funcl(data[ldown(p)],data[rdown(p)])){
+	  //swap l
+	  swap_value(p,ldown(p));
+	  p= ldown(p);
+	}else{
+	  //swap r
+	  swap_value(p,rdown(p));
+	  p= rdown(p);
+	}
       }
     }
   }

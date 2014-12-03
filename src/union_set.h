@@ -18,6 +18,6 @@ public:
     return parent[n];
   }
   void union_node(size_t n, size_t n2){
-    parent[n2]=parent[n];
+    parent[find(n2)]=parent[find(n)];
   }
 };

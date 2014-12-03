@@ -46,7 +46,7 @@ public:
     stringstream ss;
     ss<<"weight_edge_graph("<<sum_v()<<");"<<endl;
     for(size_t i=0; i<sum_e(); i++){
-      ss<<".add_edge("<<pool_of_edge[i].v1<<", "<<pool_of_edge[i].v2<<", "<<pool_of_edge[i].weight<<");";
+      ss<<".add_edge("<<pool_of_edge[i].v1<<", "<<pool_of_edge[i].v2<<", "<<pool_of_edge[i].weight<<");\n";
     }
     return ss.str();
   }
@@ -56,12 +56,49 @@ weight_edge_graph kruskal_minimum_spanning_tree(weight_edge_graph& src, weight_e
   vector<weight_edge> edges(src.pool_of_edge.begin(),src.pool_of_edge.end());
   sort(edges.begin(),edges.end(),[](weight_edge& e1,weight_edge& e2){return e1.lees(e2);});
   union_set us(src.sum_v());
-  for(size_t i=0; i<src.sum_v(); i++){
+  for(size_t i=0; i<edges.size(); i++){
     if(us.find(edges[i].v1)!=us.find(edges[i].v2)){
       us.union_node(edges[i].v1, edges[i].v2);
-      _out.add_edge(edges[i].v1,edges[i].v2,edges[i].weight);
+      _out.add_edge(edges[i].v1, edges[i].v2, edges[i].weight);
     }
   }
   return _out;
 }
 
+void prim_minimum_spanning_tree_mark(weight_edge_graph& src, size_t v, vector<bool>& mark_v, binheap& edge_edges){
+  mark_v[v]=true;
+  auto adjs= src.adj(v);
+  for(auto i : adjs){
+    if(mark_v[ src.pool_of_edge[i].other(v) ] == false)
+      edge_edges.insert(i);
+  }
+}
+
+weight_edge_graph prim_minimum_spanning_tree(weight_edge_graph& src, weight_edge_graph& _out){
+  vector<bool> mark_v(src.sum_v(),false);
+  binheap edge_edges(
+    [&](size_t e1,size_t e2)->bool{
+      return src.pool_of_edge[e1].lees(src.pool_of_edge[e2]);
+    });
+  prim_minimum_spanning_tree_mark(src,0, mark_v, edge_edges);
+  while(_out.sum_e() < src.sum_v()-1){
+    if(edge_edges.size()==0){
+      cout<<"error, graph not connected.";
+    }
+    
+    size_t cur_edge_index= edge_edges.min();
+    edge_edges.pop();
+    weight_edge& cur_edge= src.pool_of_edge[cur_edge_index];
+    
+    if(mark_v[cur_edge.v1] && mark_v[cur_edge.v2])
+      continue;//ignore looped edge
+    
+    size_t next_v;
+    if( mark_v[cur_edge.v1] ) next_v= cur_edge.v2;
+    else next_v= cur_edge.v1;
+  
+    prim_minimum_spanning_tree_mark(src, next_v, mark_v, edge_edges);
+    _out.add_edge(cur_edge.v1, cur_edge.v2, cur_edge.weight);
+  }
+  return _out;
+}
