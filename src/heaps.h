@@ -6,12 +6,12 @@
 #include <iostream>
 using namespace std;
 
-class binheap{
+class binary_heap{
 public:
   typedef size_t Tvalue;
   typedef size_t Tnode;
   function<bool(Tvalue,Tvalue)> funcl;
-  binheap(function<bool(Tvalue,Tvalue)> func_less):funcl(func_less){}
+  binary_heap(function<bool(Tvalue,Tvalue)> func_less):funcl(func_less){}
   void insert(Tvalue v){
     data.push_back(v);
     fix(data.size()-1);

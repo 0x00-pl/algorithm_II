@@ -2,6 +2,7 @@
 #include "src/graph.h"
 #include "src/heaps.h"
 #include "src/minimum_spanning_tree.h"
+#include "src/shortest_paths.h"
 
 using namespace std;
 
@@ -51,7 +52,7 @@ int main(int argc, char **argv) {
   cout<<endl;
   
   cout<<"binheap"<<endl;
-  binheap bh([](size_t l, size_t r){return l<r;});
+  binary_heap bh([](size_t l, size_t r){return l<r;});
   bh.insert(2);
   bh.insert(3);
   bh.insert(1);
@@ -76,7 +77,7 @@ int main(int argc, char **argv) {
   }
   cout<<endl;
   
-  weight_edge_graph weg(8);
+  weight_graph weg(8);
   weg.add_edge(0, 7, 0.16);
   weg.add_edge(2, 3, 0.17);
   weg.add_edge(1, 7, 0.19);
@@ -94,20 +95,51 @@ int main(int argc, char **argv) {
   weg.add_edge(6, 0, 0.58);
   weg.add_edge(6, 4, 0.93);
   cout<<"kruskal_minimum_spanning_tree()"<<endl;
-  weight_edge_graph kru_mst(weg.sum_v());
+  weight_graph kru_mst(weg.sum_v());
   kruskal_minimum_spanning_tree(weg, kru_mst);
   cout<<kru_mst.expr();
   cout<<endl;
   
   cout<<"prim_minimum_spanning_tree()"<<endl;
-  weight_edge_graph prim_mst(weg.sum_v());
+  weight_graph prim_mst(weg.sum_v());
   prim_minimum_spanning_tree(weg, prim_mst);
   cout<<prim_mst.expr();
   cout<<endl;
   cout<<"prim_minimum_spanning_tree2()"<<endl;
-  weight_edge_graph prim_mst2(weg.sum_v());
+  weight_graph prim_mst2(weg.sum_v());
   prim_minimum_spanning_tree(weg, prim_mst2);
   cout<<prim_mst2.expr();
+  cout<<endl;
+  
+  
+  weight_digraph wedg(8);
+  wedg.add_edge(weight_dircted_edge(0, 1, 5.0 ));
+  wedg.add_edge(weight_dircted_edge(0, 4, 9.0 ));
+  wedg.add_edge(weight_dircted_edge(0, 7, 8.0 ));
+  wedg.add_edge(weight_dircted_edge(1, 2, 12.0));
+  wedg.add_edge(weight_dircted_edge(1, 3, 15.0));
+  wedg.add_edge(weight_dircted_edge(1, 7, 4.0 ));
+  wedg.add_edge(weight_dircted_edge(2, 3, 3.0 ));
+  wedg.add_edge(weight_dircted_edge(2, 6, 11.0));
+  wedg.add_edge(weight_dircted_edge(3, 6, 9.0 ));
+  wedg.add_edge(weight_dircted_edge(4, 5, 4.0 ));
+  wedg.add_edge(weight_dircted_edge(4, 6, 20.0));
+  wedg.add_edge(weight_dircted_edge(4, 7, 5.0 ));
+  wedg.add_edge(weight_dircted_edge(5, 2, 1.0 ));
+  wedg.add_edge(weight_dircted_edge(5, 6, 13.0));
+  wedg.add_edge(weight_dircted_edge(7, 5, 6.0 ));
+  wedg.add_edge(weight_dircted_edge(7, 2, 7.0 ));
+  
+  cout<<"single_source_path()"<<endl;
+  single_source_path ssp(wedg, 0);
+  for(size_t i=0; i<ssp.dist.size(); i++){
+    cout<<i<<" dist:"<<ssp.dist_to(i)<<" {"<<endl;
+    auto paths= ssp.path_to(i);
+    for(auto j : paths){
+      cout<<j.expr()<<endl;
+    }
+    cout<<"}"<<endl;
+  }
   cout<<endl;
   
   

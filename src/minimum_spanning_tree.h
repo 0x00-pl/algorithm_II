@@ -27,11 +27,11 @@ public:
 };
 
 
-class weight_edge_graph{
+class weight_graph{
 public:
   vector<vector<size_t> > edge_data;
   vector<weight_edge> pool_of_edge;
-  weight_edge_graph(size_t v):edge_data(v){}
+  weight_graph(size_t v):edge_data(v){}
   size_t sum_v(){return edge_data.size();}
   size_t sum_e(){return pool_of_edge.size();}
   void add_edge(size_t v1, size_t v2, double weight){
@@ -52,7 +52,7 @@ public:
   }
 };
 
-weight_edge_graph kruskal_minimum_spanning_tree(weight_edge_graph& src, weight_edge_graph& _out){
+weight_graph kruskal_minimum_spanning_tree(weight_graph& src, weight_graph& _out){
   vector<weight_edge> edges(src.pool_of_edge.begin(),src.pool_of_edge.end());
   sort(edges.begin(),edges.end(),[](weight_edge& e1,weight_edge& e2){return e1.lees(e2);});
   union_set us(src.sum_v());
@@ -65,7 +65,7 @@ weight_edge_graph kruskal_minimum_spanning_tree(weight_edge_graph& src, weight_e
   return _out;
 }
 
-void prim_minimum_spanning_tree_mark(weight_edge_graph& src, size_t v, vector<bool>& mark_v, binheap& edge_edges){
+void prim_minimum_spanning_tree_mark(weight_graph& src, size_t v, vector<bool>& mark_v, binary_heap& edge_edges){
   mark_v[v]=true;
   auto adjs= src.adj(v);
   for(auto i : adjs){
@@ -74,9 +74,9 @@ void prim_minimum_spanning_tree_mark(weight_edge_graph& src, size_t v, vector<bo
   }
 }
 
-weight_edge_graph prim_minimum_spanning_tree(weight_edge_graph& src, weight_edge_graph& _out){
+weight_graph prim_minimum_spanning_tree(weight_graph& src, weight_graph& _out){
   vector<bool> mark_v(src.sum_v(),false);
-  binheap edge_edges(
+  binary_heap edge_edges(
     [&](size_t e1,size_t e2)->bool{
       return src.pool_of_edge[e1].lees(src.pool_of_edge[e2]);
     });
@@ -104,7 +104,7 @@ weight_edge_graph prim_minimum_spanning_tree(weight_edge_graph& src, weight_edge
 }
 
 
-void prim_minimum_spanning_tree2_mark(weight_edge_graph& src, size_t v, vector<bool>& mark_v, fib_heap& edge_edges){
+void prim_minimum_spanning_tree2_mark(weight_graph& src, size_t v, vector<bool>& mark_v, fib_heap& edge_edges){
   mark_v[v]=true;
   auto adjs= src.adj(v);
   for(auto i : adjs){
@@ -113,7 +113,7 @@ void prim_minimum_spanning_tree2_mark(weight_edge_graph& src, size_t v, vector<b
   }
 }
 
-weight_edge_graph prim_minimum_spanning_tree2(weight_edge_graph& src, weight_edge_graph& _out){
+weight_graph prim_minimum_spanning_tree2(weight_graph& src, weight_graph& _out){
   vector<bool> mark_v(src.sum_v(),false);
   fib_heap edge_edges(
     [&](size_t e1,size_t e2)->bool{
