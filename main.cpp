@@ -3,6 +3,7 @@
 #include "src/heaps.h"
 #include "src/minimum_spanning_tree.h"
 #include "src/shortest_paths.h"
+#include "src/maximum_flow.h"
 
 using namespace std;
 
@@ -140,6 +141,11 @@ int main(int argc, char **argv) {
     }
     cout<<"}"<<endl;
   }
+  cout<<endl;
+    
+  cout<<"maximum_flow_graph()"<<endl;
+  maximum_flow_graph mfg(wedg);
+  cout<<"max_flow= "<<mfg.ford_fulkerson(0,6)<<endl;
   cout<<endl;
   
   
