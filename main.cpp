@@ -194,5 +194,14 @@ int main(int argc, char **argv) {
     cout<<vstr[i]<<endl;
   }
   cout<<endl;
+  
+  cout<<"suffix_sort"<<endl;
+  string suf_sort_str="A string object with a substring of this object.";
+  suffix_sort suf_sort(suf_sort_str);
+  suf_sort.show_all(suf_sort_str,90);
+  cout<<endl;
+  
+  
+  
   return 0;
 }
