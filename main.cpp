@@ -4,6 +4,7 @@
 #include "src/minimum_spanning_tree.h"
 #include "src/shortest_paths.h"
 #include "src/maximum_flow.h"
+#include "src/radix_sort.h"
 
 using namespace std;
 
@@ -148,6 +149,50 @@ int main(int argc, char **argv) {
   cout<<"max_flow= "<<mfg.ford_fulkerson(0,6)<<endl;
   cout<<endl;
   
+  int unsort[]={9,5,6,8,7,3,2,1,4,0};
+  vector<int> vunsort(unsort,unsort+(sizeof(unsort)/sizeof(*unsort)));
+  cout<<"key_indexed_counting"<<endl;
+  key_indexed_counting<int> kic_sorting(vunsort,10
+  ,[](int n){return n;});
+  cout<<"sorted:";
+  for(size_t i=0; i<kic_sorting.sorted.size(); i++){
+    cout<<kic_sorting.sorted[i]<<" ";
+  }
+  cout<<endl<<endl;
   
+  
+  
+  cout<<"three_way_string_sort"<<endl;
+  vector<string> vstr;
+  vstr.push_back("void three_way_string_sort(vector<string>& sp, size_t b, size_t e, size_t dep){");
+  vstr.push_back("  if(b>=e) return;");
+  vstr.push_back("  char cur= sp[b][dep];");
+  vstr.push_back("  size_t mb=b;");
+  vstr.push_back("  size_t me=e;");
+  vstr.push_back("  for(size_t i=b+1; i<me;){");
+  vstr.push_back("    if(sp[i][dep] < cur){");
+  vstr.push_back("      sp[mb].swap(sp[i]);");
+  vstr.push_back("      mb++; i++;");
+  vstr.push_back("    }");
+  vstr.push_back("    else if(cur < sp[i][dep]){");
+  vstr.push_back("      sp[me-1].swap(sp[i]);");
+  vstr.push_back("      me--;");
+  vstr.push_back("    }");
+  vstr.push_back("    else{ i++; }");
+  vstr.push_back("  }");
+  vstr.push_back("  three_way_string_sort(sp,b,mb,dep);");
+  vstr.push_back("  if(cur!='\0') three_way_string_sort(sp,mb,me,dep+1);");
+  vstr.push_back("  three_way_string_sort(sp,me,e,dep);");
+  vstr.push_back("}");
+  vstr.push_back("void three_way_string_sort(vector<string>& sp){");
+  vstr.push_back("  three_way_string_sort(sp,0,sp.size(),0);");
+  vstr.push_back("}");
+  
+  three_way_string_sort(vstr);
+  cout<<"sorted:"<<endl;
+  for(size_t i=0; i<vstr.size(); i++){
+    cout<<vstr[i]<<endl;
+  }
+  cout<<endl;
   return 0;
 }
