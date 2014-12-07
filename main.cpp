@@ -8,7 +8,15 @@
 
 using namespace std;
 
-int main(int argc, char **argv) {
+//#include "src/temp_pb43.h"
+#include <map>
+int main(){
+  //cout<<f43()<<endl;
+  map<int,int*> a;
+  cout<<a[123]<<endl;
+}
+
+int bbbmain(int argc, char **argv) {
   graph g(10);
   g.add_edge(5,2);
   g.add_edge(3,2);

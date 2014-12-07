@@ -7,7 +7,7 @@ Current Build Directory Index=0
 ProjectRootRelative=./
 
 [CMake][CMake Build Directory 0]
-Build Directory Path=file:///home/pl/projects/algorithm_II/build
+Build Directory Path=file:///home/pl/Documents/kdevelop/algorithm_II/build
 Build Type=Debug
 CMake Binary=file:///usr/bin/cmake
 Environment Profile=
