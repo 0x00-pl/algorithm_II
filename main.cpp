@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
   
   r_way_tries_test();
   kmp_search_test();
-  
+  boyer_moore_search_test();
   
   return 0;
 }
