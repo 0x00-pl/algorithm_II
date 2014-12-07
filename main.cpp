@@ -5,18 +5,13 @@
 #include "src/shortest_paths.h"
 #include "src/maximum_flow.h"
 #include "src/radix_sort.h"
-
+#include "src/tries.h"
+#include "src/substring_search.h"
 using namespace std;
 
 //#include "src/temp_pb43.h"
-#include <map>
-int main(){
-  //cout<<f43()<<endl;
-  map<int,int*> a;
-  cout<<a[123]<<endl;
-}
 
-int bbbmain(int argc, char **argv) {
+int main(int argc, char **argv) {
   graph g(10);
   g.add_edge(5,2);
   g.add_edge(3,2);
@@ -209,7 +204,8 @@ int bbbmain(int argc, char **argv) {
   suf_sort.show_all(suf_sort_str,90);
   cout<<endl;
   
-  
+  r_way_tries_test();
+  kmp_search_test();
   
   return 0;
 }
