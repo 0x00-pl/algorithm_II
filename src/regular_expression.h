@@ -9,6 +9,20 @@ using namespace std;
 
 class nfs_regex{
 public:
+  bool check(string s){
+    if(s[0]!='(') return false;
+    if(s[s.size()-1]!='0') return false;
+    int count_p=0;
+    for(size_t i=1; i<s.length()-1; i++){
+      if(s[i]=='(') count_p++;
+      else if(s[i]==')') count_p--;
+      else if(s[i]=='*' && s[i-1]=='(') return false;
+      else if(s[i]=='*' && s[i-1]=='|') return false;
+      else if(s[i]=='*' && s[i-1]=='*') return false;
+    }
+    if(count_p!=0) return false;
+    return true;
+  }
   //need ilgal check for re
   nfs_regex(string _re)
   :nfs(_re.size()+1)
