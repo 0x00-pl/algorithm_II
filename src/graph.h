@@ -13,7 +13,10 @@ class digraph{
 public:
   vector<vector<size_t> > graph_e;
   size_t sum_of_edge;
-  digraph(size_t v_size):graph_e(v_size,vector<size_t>()),sum_of_edge(0){}
+  digraph(size_t v_size)
+  :graph_e(v_size,vector<size_t>())
+  ,sum_of_edge(0)
+  {}
   void add_edge(size_t v, size_t v2){
     graph_e[v].push_back(v2);
     sum_of_edge+=2;
