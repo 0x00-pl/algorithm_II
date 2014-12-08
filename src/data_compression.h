@@ -111,6 +111,7 @@ public:
     if(_in[pos++]){      
       char c= vector_get_char(_in,pos);
       ret= new node(nullptr,nullptr,1,c);
+      // it take hours to let me understand that !!! char is not unsigned !!!
       node_pool[static_cast<size_t>(c)&((1<<8)-1)]= ret;
       return ret;
     }else{
@@ -157,6 +158,7 @@ public:
   }
   void bulid_fenq(vector<size_t>& fenq, string& text){
     for(size_t i=0; i<text.size(); i++){
+      // it take hours to let me understand that !!! char is not unsigned !!!
       fenq[static_cast<size_t>(text[i])&((1<<8)-1)]++;
     }
   }
