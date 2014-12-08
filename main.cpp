@@ -8,11 +8,12 @@
 #include "src/tries.h"
 #include "src/substring_search.h"
 #include "src/regular_expression.h"
+#include "src/data_compression.h"
 using namespace std;
 
 //#include "src/temp_pb43.h"
 
-int main(int argc, char **argv) {/*
+int main(int argc, char **argv) {
   graph g(10);
   g.add_edge(5,2);
   g.add_edge(3,2);
@@ -208,8 +209,8 @@ int main(int argc, char **argv) {/*
   r_way_tries_test();
   kmp_search_test();
   boyer_moore_search_test();
-  boyer_moore_full_search_test();*/
+  boyer_moore_full_search_test();
   nfs_regex_test();
-  
+  huffman_test();
   return 0;
 }
