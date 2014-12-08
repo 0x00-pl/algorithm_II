@@ -90,6 +90,54 @@ public:
 };
 
 
+class boyer_moore_full{
+public:
+  vector<size_t> trans_path_matrix;
+  size_t R;
+  string patt;
+  boyer_moore_full(string& s)
+  :R(256)
+  ,patt(s)
+  ,trans_path_matrix(s.size()*256){
+    /**
+     *   0123456
+     *   banana
+     *   ------
+     * a 644220
+     * b 555555
+     * n 663311
+     * . 666666
+     * 
+     */
+    for(size_t i=0; i<R; i++){
+      trans_path_matrix[at_pos_ch(0,i)]= s.size();
+    }
+    trans_path_matrix[at_pos_ch(0,s[0])]= s.size()-1;
+    
+    for(size_t p=1; p<s.size(); p++){
+      for(size_t i=0; i<R; i++){
+	trans_path_matrix[at_pos_ch(p,i)]= trans_path_matrix[at_pos_ch(p-1,i)];
+      }
+      trans_path_matrix[at_pos_ch(p,s[p])]=  s.size()-1-p;
+    }
+  }
+  size_t search(string& text){
+    for(size_t p=0; p<=text.size()-patt.size();){
+      size_t ri=0;
+      for(; ri<patt.size(); ri++){
+	size_t i= patt.size()-1-ri;
+	if(text[p+i]!=patt[i]){
+	  p+= trans_path_matrix[at_pos_ch(i,text[p+i])]-ri;
+	  break;
+	}
+      }
+      if(ri>=patt.size()) return p;
+    }
+    return text.size();
+  }
+  size_t at_pos_ch(size_t pos, size_t ch){return pos*R+ch;}
+};
+
 
 bool kmp_search_test(){
   cout<<"kmp_search()"<<endl;
@@ -107,6 +155,17 @@ bool boyer_moore_search_test(){
   string text("0123456789banana");
   boyer_moore bms(patt);
   size_t r= bms.search(text);
+  cout<<"12=="<<r<<endl;
+  cout<<endl;
+  return 12==r;
+}
+
+bool boyer_moore_full_search_test(){
+  cout<<"boyer_moore_search()"<<endl;
+  string patt("nana");
+  string text("0123456789banana");
+  boyer_moore_full bmfs(patt);
+  size_t r= bmfs.search(text);
   cout<<"12=="<<r<<endl;
   cout<<endl;
   return 12==r;
