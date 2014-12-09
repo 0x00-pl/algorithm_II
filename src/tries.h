@@ -12,7 +12,7 @@ public:
   public:
     value_type* val;
     map<char,node*> sub;
-    node():val(0){}
+    node():val(nullptr){}
     ~node(){
       delete val;
       for(auto i : sub){
@@ -54,6 +54,21 @@ public:
   }
   value_type* get(string& key){
     return _get(key,&root);
+  }
+  void get_longest_prefix(string& keystr, node* n, size_t dep, value_type* _out, size_t& _out_n){
+    if(n->val!=nullptr){
+      *_out= *n->val;
+      _out_n= dep;
+    }
+    if(keystr.size()==dep){
+      return;
+    }
+    char ck= keystr[dep];
+    auto i= n->sub.find(ck);
+    if(i==n->sub.end()){
+      return;
+    }
+    get_longest_prefix(keystr, i->second, dep+1, _out, _out_n);
   }
   value_type* _pop(string& key, node* n, size_t dep=0){
     if(key.size()==dep){

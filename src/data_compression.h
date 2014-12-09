@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "heaps.h"
+#include "tries.h"
 using namespace std;
 /* un safe
 char* bin2char(vector<bool>& bits){
@@ -197,6 +198,107 @@ public:
   }
 };
 
+
+class lzw{
+public:
+  r_way_tries suffix_tree;
+  size_t next_pos_of_table;
+  size_t N;
+  
+  lzw()
+  :next_pos_of_table(257)
+  ,N(10){
+    build_suffix_tree();
+  }
+  void build_suffix_tree(){
+    for(size_t i=0; i<256; i++){
+      char c[2]={'\0','\0'};
+      c[0]=i;
+      string str(c);
+      suffix_tree.set(str, new int(i));
+    }
+  }
+  size_t inc_next_pos_of_table(){
+    next_pos_of_table++;
+    if(next_pos_of_table>=(1<<N)) next_pos_of_table=257;
+  }
+  string suffix_tree_add(string s, char _c){
+    char c[2]={'\0','\0'};
+    c[0]=_c;
+    s= s+c;
+    int* pcur= suffix_tree.get(s);
+    if(pcur==nullptr){
+      pcur=new int(next_pos_of_table);
+      suffix_tree.set(s, pcur);
+    }else{
+      *pcur= next_pos_of_table;
+    }
+    inc_next_pos_of_table();
+    return s;
+  }
+  
+  void write_N_bit(vector<bool>& fout, uint32_t bits){
+    for(size_t i=0; i<N; i++){
+      bits= bits<<1;
+      bool bit= bits&(1<<N);
+      fout.push_back(bit);
+    }
+  }
+  uint32_t read_N_bit(vector<bool>& fin, size_t& pos){
+    uint32_t bits=0;
+    for(size_t i=0; i<N; i++){
+      bool bit= fin[pos]; pos++;
+      bits= bits<<1;
+      bits= bits|(bit&1);
+    }
+    return bits & ((1<<N)-1);
+  }
+  
+  void zip(string text, vector<bool>& _out){
+    size_t val;
+    size_t size=0;
+    suffix_tree.get_longest_prefix(text, &suffix_tree.root, 0, (int*)&val, size);
+    write_N_bit(_out, val);
+    string last_s= text.substr(0,size);
+    text= text.substr(size);
+    while(!text.empty()){
+      suffix_tree.get_longest_prefix(text, &suffix_tree.root, 0, (int*)&val, size);
+      write_N_bit(_out, val);
+      suffix_tree_add(last_s, text[0]);
+      last_s= text.substr(0,size);
+      text= text.substr(size);
+    }
+    write_N_bit(_out, 256);
+  }
+  string unzip(vector<bool>& _in){
+    string ret;
+    vector<string> rwt_ref_back(1<<N);
+    char c[2]={'\0','\0'};
+    for(size_t i=0; i<256; i++){
+      c[0]=i;
+      rwt_ref_back[i]= string(c);
+    }
+    
+    size_t pos=0;
+    uint32_t val= read_N_bit(_in,pos);
+    string last_s="";
+    while(val!=256){
+      string& cur_s= rwt_ref_back[val];
+      ret+= cur_s;
+      if(!last_s.empty()){
+	c[0]= cur_s[0];
+	rwt_ref_back[next_pos_of_table]= last_s + c;
+	inc_next_pos_of_table();
+      }
+      last_s= cur_s;
+      val= read_N_bit(_in,pos);
+    }
+    return ret;
+  }
+};
+
+
+
 bool huffman_test(){
   cout<<"huffman"<<endl;
   string text="banana";
@@ -212,6 +314,24 @@ bool huffman_test(){
   {
     huffman hf2(tree_z);
     string text2= hf2.unzip(text_z, text.size());
+    cout<<"unzip():"<<text2<<endl<<endl;
+  }
+  return true;
+}
+
+bool lzw_test(){
+  cout<<"lzw"<<endl;
+  string text="banana";
+  cout<<"zip():"<<text<<endl;
+  vector<bool> text_z;
+  {
+    lzw olzw;
+    olzw.zip(text, text_z);
+  }
+  //------
+  {
+    lzw olzw2;
+    string text2= olzw2.unzip(text_z);
     cout<<"unzip():"<<text2<<endl<<endl;
   }
   return true;
