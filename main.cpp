@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <regex>
 #include "src/graph.h"
 #include "src/heaps.h"
 #include "src/minimum_spanning_tree.h"
@@ -13,7 +15,7 @@ using namespace std;
 
 //#include "src/temp_pb43.h"
 
-int main(int argc, char **argv) {
+int test() {
   graph g(10);
   g.add_edge(5,2);
   g.add_edge(3,2);
@@ -211,6 +213,63 @@ int main(int argc, char **argv) {
   boyer_moore_search_test();
   boyer_moore_full_search_test();
   nfs_regex_test();
+  bit_pool_test();
   huffman_test();
-  return 0;
+  lzw_test();
+  
+}
+
+int main(int argc, char **argv){
+  if(argc>3 && string(argv[1])=="zip"){
+    ifstream infile(argv[2], ios::in|ios::binary);
+    ofstream outfile(argv[3], ios::out|ios::binary);
+    
+    infile.seekg(0, ios_base::end);
+    int length = infile.tellg();
+    infile.seekg(0, ios_base::beg);
+    
+    char * buffer = new char [length+1];
+    buffer[length]=0;
+    
+    infile.read(buffer, length);
+    
+    bit_pool bpout;
+    lzw_2 lzw2;
+    lzw2.zip(buffer, bpout);
+    
+    outfile.write((char*)&bpout.pool[0],bpout.pool.size());
+    
+    delete buffer;
+    outfile.close();
+    infile.close();
+  }else if(argc>3 && string(argv[1])=="unzip"){
+    ifstream infile(argv[2], ios::in|ios::binary);
+    ofstream outfile(argv[3], ios::out|ios::binary);
+    
+    infile.seekg(0, ios_base::end);
+    int length = infile.tellg();
+    infile.seekg(0, ios_base::beg);
+    
+    char * buffer = new char [length+1];
+    buffer[length]=0;
+    
+    infile.read(buffer, length);
+    
+    
+    bit_pool bpout;
+    bpout.pool.clear();
+    for(size_t i=0; i<length; i++){
+      bpout.pool.push_back(buffer[i]);
+    }
+    lzw_2 lzw2;
+    string r= lzw2.unzip(bpout);
+    
+    outfile.write(r.c_str(), r.size());
+    
+    delete buffer;
+    outfile.close();
+    infile.close();
+  }else{
+    test();
+  }
 }

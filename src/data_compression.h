@@ -12,46 +12,53 @@ char* bin2char(vector<bool>& bits){
 class bit_pool{
 public:
   vector<char> pool;
-  char last;
   size_t pos;
-  bit_pool(){pos=0;}
+  bit_pool(){
+    pos=0;
+    pool.push_back('\0');
+  }
   // maxlen is 16
   void push(uint32_t bit, int len){
+    /**
+     * |xxxxxx  |        |
+     * |      yy|yyyyyyyy|yyyyy 
+     *  012345
+     *   76543210
+     *   0123456789012345
+     *   5432109876543210
+     * | yyyyyyy|yyyyyyyy|
+     */
     while(len>0){
-      uint32_t t= bit>>pos;
-      t= t>>32-8;
-      last= (last&(~((1<<(8-pos))-1)))|(t&((1<<(8-pos))-1));
-      if(pos+len>=8){
-	len= len-(8-pos);
-	bit= bit<<(8-pos);
-	pos= 0;
-	pool.push_back(last);
+      uint32_t t= bit;
+      size_t r= 8-pos;
+      if(len>=r) {t= t>>(len-r);}
+      else {t= t<<(r-len);}
+      char& l=pool[pool.size()-1];
+      unsigned char mask= (1<<r)-1;
+      l= (l&(~mask)) | (t&mask);
+      if(len < r){
+	pos+=len;
+	len=0;
       }else{
-        pos= pos+len;
-	len= 0;
+	pool.push_back('\0');
+	pos=0;
+	len=len-r;
       }
     }
   }
-  void at_eof(){
-    pool.push_back(last);
-    pool.push_back('\0');
-    pool.push_back('\0');
-    pool.push_back('\0');
-  }
-  //uint32_t pop(int len){}
   size_t size(){
-    return pool.size()*8+pos;
+    return (pool.size()-1)*8+pos;
   }
   uint32_t get(size_t p, int len){
     size_t b= p/8;
     size_t c= p%8;
-    uint32_t r3= pool[b];
-    uint32_t r2= pool[b+1];
-    uint32_t r1= pool[b+2];
-    uint32_t r0= pool[b+3];
+    uint32_t r3= b<pool.size() ? pool[b] : 0;
+    uint32_t r2= b+1<pool.size() ? pool[b+1] : 0;
+    uint32_t r1= b+2<pool.size() ? pool[b+2] : 0;
+    uint32_t r0= b+3<pool.size() ? pool[b+3] : 0;
     uint32_t ret= ((r3&((1<<8)-1))<<24) | ((r2&((1<<8)-1))<<16) | ((r1&((1<<8)-1))<<8) |(r0&((1<<8)-1));
     ret= ret<<c;
-    return ret;
+    return (ret>>(32-len))&((1<<len)-1);
   }
   vector<char>& to_chars(){return pool;}
   string to_string(){
@@ -298,6 +305,107 @@ public:
 };
 
 
+class lzw_2{
+public:
+  r_way_tries suffix_tree;
+  size_t next_pos_of_table;
+  size_t N;
+  
+  lzw_2()
+  :next_pos_of_table(257)
+  ,N(10){
+    build_suffix_tree();
+  }
+  void build_suffix_tree(){
+    for(size_t i=0; i<256; i++){
+      char c[2]={'\0','\0'};
+      c[0]=i;
+      string str(c);
+      suffix_tree.set(str, new int(i));
+    }
+  }
+  size_t inc_next_pos_of_table(){
+    next_pos_of_table++;
+    if(next_pos_of_table>=(1<<N)) next_pos_of_table=257;
+  }
+  string suffix_tree_add(string s, char _c){
+    char c[2]={'\0','\0'};
+    c[0]=_c;
+    s= s+c;
+    int* pcur= suffix_tree.get(s);
+    if(pcur==nullptr){
+      pcur=new int(next_pos_of_table);
+      suffix_tree.set(s, pcur);
+    }else{
+      *pcur= next_pos_of_table;
+    }
+    inc_next_pos_of_table();
+    return s;
+  }
+  
+  void write_N_bit(bit_pool& fout, uint32_t bits){
+    fout.push(bits,N);
+  }
+  uint32_t read_N_bit(bit_pool& fin, size_t& pos){
+    uint32_t bits= fin.get(pos,N);
+    pos+=N;
+    return bits & ((1<<N)-1);
+  }
+  
+  void zip(string text, bit_pool& _out){
+    size_t val;
+    size_t size=0;
+    suffix_tree.get_longest_prefix(text, &suffix_tree.root, 0, (int*)&val, size);
+    write_N_bit(_out, val);
+    string last_s= text.substr(0,size);
+    text= text.substr(size);
+    while(!text.empty()){
+      suffix_tree.get_longest_prefix(text, &suffix_tree.root, 0, (int*)&val, size);
+      write_N_bit(_out, val);
+      suffix_tree_add(last_s, text[0]);
+      last_s= text.substr(0,size);
+      text= text.substr(size);
+    }
+    write_N_bit(_out, 256);
+  }
+  string unzip(bit_pool& _in){
+    string ret;
+    vector<string> rwt_ref_back(1<<N);
+    char c[2]={'\0','\0'};
+    for(size_t i=0; i<256; i++){
+      c[0]=i;
+      rwt_ref_back[i]= string(c);
+    }
+    
+    size_t pos=0;
+    uint32_t val= read_N_bit(_in,pos);
+    string last_s="";
+    while(val!=256){
+      string& cur_s= rwt_ref_back[val];
+      ret+= cur_s;
+      if(!last_s.empty()){
+	c[0]= cur_s[0];
+	rwt_ref_back[next_pos_of_table]= last_s + c;
+	inc_next_pos_of_table();
+      }
+      last_s= cur_s;
+      val= read_N_bit(_in,pos);
+    }
+    return ret;
+  }
+};
+
+bool bit_pool_test(){
+  cout<<"bit_pool_test"<<endl;
+  bit_pool b;
+  b.push(1,1);
+  b.push(0xff,8);
+  size_t s= b.get(0,1);
+  cout<<hex<<(int)s<<endl;
+  s= b.get(1,8);
+  cout<<hex<<(int)s<<endl;
+  cout<<endl;
+}
 
 bool huffman_test(){
   cout<<"huffman"<<endl;
@@ -323,14 +431,19 @@ bool lzw_test(){
   cout<<"lzw"<<endl;
   string text="banana";
   cout<<"zip():"<<text<<endl;
-  vector<bool> text_z;
+  bit_pool text_z;
   {
-    lzw olzw;
+    lzw_2 olzw;
     olzw.zip(text, text_z);
   }
   //------
+  size_t pos=0;
+  for(size_t i=0; i<8; i++){
+    cout<<text_z.get(pos,10)<<endl;
+    pos+=10;
+  }
   {
-    lzw olzw2;
+    lzw_2 olzw2;
     string text2= olzw2.unzip(text_z);
     cout<<"unzip():"<<text2<<endl<<endl;
   }
