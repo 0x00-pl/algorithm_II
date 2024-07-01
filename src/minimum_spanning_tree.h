@@ -21,7 +21,7 @@ public:
       return v2;
     return v1;
   }
-  bool lees(weight_edge& o){
+  bool lees(const weight_edge& o) const {
     return weight<o.weight;
   }
 };
@@ -53,8 +53,8 @@ public:
 };
 
 weight_graph kruskal_minimum_spanning_tree(weight_graph& src, weight_graph& _out){
-  vector<weight_edge> edges(src.pool_of_edge.begin(),src.pool_of_edge.end());
-  sort(edges.begin(),edges.end(),[](weight_edge& e1,weight_edge& e2){return e1.lees(e2);});
+  vector<weight_edge> edges(src.pool_of_edge.begin(), src.pool_of_edge.end());
+  sort(edges.begin(),edges.end(),[](const weight_edge& e1, const weight_edge& e2){return e1.lees(e2);});
   union_set us(src.sum_v());
   for(size_t i=0; i<edges.size(); i++){
     if(us.find(edges[i].v1)!=us.find(edges[i].v2)){
